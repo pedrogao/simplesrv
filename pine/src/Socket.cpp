@@ -1,8 +1,7 @@
 /**
  * @file Socket.cpp
  * @author 冯岳松 (yuesong-feng@foxmail.com)
- * @brief 客户端、服务器共用
- * accept，connect都支持非阻塞式IO，但只是简单处理，如果情况太复杂可能会有意料之外的bug
+ * @brief 客户端、服务器共用 accept，connect都支持非阻塞式IO，但只是简单处理，如果情况太复杂可能会有意料之外的bug
  * @version 0.1
  * @date 2022-01-04
  *
@@ -30,33 +29,29 @@ Socket::Socket(int fd) : fd_(fd) { ErrorIf(fd_ == -1, "socket create error"); }
 Socket::~Socket() {
   if (fd_ != -1) {
     close(fd_);
-    fd_ = -1;
   }
 }
 
 void Socket::Bind(InetAddress *addr) {
   struct sockaddr_in tmp_addr = addr->GetAddr();
-  ErrorIf(bind(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1,
-          "socket bind error");
+  ErrorIf(bind(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1, "socket bind error");
 }
 
-void Socket::Listen() {
-  ErrorIf(::listen(fd_, SOMAXCONN) == -1, "socket listen error");
-}
-void Socket::SetNonBlocking() {
-  fcntl(fd_, F_SETFL, fcntl(fd_, F_GETFL) | O_NONBLOCK);
-}
+void Socket::Listen() { ErrorIf(listen(fd_, SOMAXCONN) == -1, "socket listen error"); }
+
+void Socket::SetNonBlocking() { fcntl(fd_, F_SETFL, fcntl(fd_, F_GETFL) | O_NONBLOCK); }
+
+bool Socket::IsNonBlocking() { return (fcntl(fd_, F_GETFL) & O_NONBLOCK) != 0; }
 
 int Socket::Accept(InetAddress *addr) {
   // for server socket
   int clnt_sockfd = -1;
   struct sockaddr_in tmp_addr {};
   socklen_t addr_len = sizeof(tmp_addr);
-  if (fcntl(fd_, F_GETFL) & O_NONBLOCK) {
+  if (IsNonBlocking()) {
     while (true) {
       clnt_sockfd = accept(fd_, (sockaddr *)&tmp_addr, &addr_len);
       if (clnt_sockfd == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {
-        // printf("no connection yet\n");
         continue;
       }
       if (clnt_sockfd == -1) {
@@ -103,9 +98,14 @@ void Socket::Connect(InetAddress *addr) {
       }
     }
   } else {
-    ErrorIf(connect(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1,
-            "socket connect error");
+    ErrorIf(connect(fd_, (sockaddr *)&tmp_addr, sizeof(tmp_addr)) == -1, "socket connect error");
   }
+}
+
+void Socket::Connect(const char *ip, uint16_t port) {
+  InetAddress *addr = new InetAddress(ip, port);
+  Connect(addr);
+  delete addr;
 }
 
 int Socket::GetFd() { return fd_; }

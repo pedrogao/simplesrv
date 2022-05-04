@@ -13,10 +13,10 @@
 
 #include <functional>
 
-class Epoll;
+class Poller;
 class Channel;
 class EventLoop {
-public:
+ public:
   EventLoop();
   ~EventLoop();
 
@@ -24,8 +24,9 @@ public:
 
   void Loop();
   void UpdateChannel(Channel *ch);
+  void DeleteChannel(Channel *ch);
 
-private:
-  Epoll *epoll_{nullptr};
+ private:
+  Poller *poller_{nullptr};
   bool quit_{false};
 };

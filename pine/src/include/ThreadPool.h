@@ -9,29 +9,28 @@
  *
  */
 #pragma once
-#include "Macros.h"
-#include <condition_variable> // NOLINT
+#include <condition_variable>  // NOLINT
 #include <functional>
-#include <future> // NOLINT
+#include <future>  // NOLINT
 #include <memory>
-#include <mutex> // NOLINT
+#include <mutex>  // NOLINT
 #include <queue>
-#include <thread> // NOLINT
+#include <thread>  // NOLINT
 #include <utility>
 #include <vector>
+#include "Macros.h"
 
 class ThreadPool {
-public:
+ public:
   explicit ThreadPool(unsigned int size = std::thread::hardware_concurrency());
   ~ThreadPool();
 
   DISALLOW_COPY_AND_MOVE(ThreadPool);
 
   template <class F, class... Args>
-  auto Add(F &&f, Args &&... args)
-      -> std::future<typename std::result_of<F(Args...)>::type>;
+  auto Add(F &&f, Args &&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
 
-private:
+ private:
   std::vector<std::thread> workers_;
   std::queue<std::function<void()>> tasks_;
   std::mutex queue_mutex_;
@@ -41,12 +40,11 @@ private:
 
 // 不能放在cpp文件，C++编译器不支持模版的分离编译
 template <class F, class... Args>
-auto ThreadPool::Add(F &&f, Args &&... args)
-    -> std::future<typename std::result_of<F(Args...)>::type> {
+auto ThreadPool::Add(F &&f, Args &&... args) -> std::future<typename std::result_of<F(Args...)>::type> {
   using return_type = typename std::result_of<F(Args...)>::type;
 
-  auto task = std::make_shared<std::packaged_task<return_type()>>(
-      std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+  auto task =
+      std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
   std::future<return_type> res = task->get_future();
   {

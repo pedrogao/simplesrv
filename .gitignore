@@ -4,3 +4,4 @@
 *.so
 *.exe
 pine/build
+*__pycache__/

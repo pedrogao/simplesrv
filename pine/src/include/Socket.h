@@ -10,11 +10,11 @@
  */
 
 #pragma once
-#include "Macros.h"
 #include <arpa/inet.h>
+#include "Macros.h"
 
 class InetAddress {
-public:
+ public:
   InetAddress();
   InetAddress(const char *ip, uint16_t port);
   ~InetAddress() = default;
@@ -26,15 +26,15 @@ public:
   const char *GetIp();
   uint16_t GetPort();
 
-private:
+ private:
   struct sockaddr_in addr_ {};
 };
 
 class Socket {
-private:
+ private:
   int fd_{-1};
 
-public:
+ public:
   Socket();
   explicit Socket(int fd);
   ~Socket();
@@ -46,7 +46,9 @@ public:
   int Accept(InetAddress *addr);
 
   void Connect(InetAddress *addr);
+  void Connect(const char *ip, uint16_t port);
 
   void SetNonBlocking();
+  bool IsNonBlocking();
   int GetFd();
 };

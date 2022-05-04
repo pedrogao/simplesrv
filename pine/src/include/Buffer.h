@@ -9,11 +9,11 @@
  *
  */
 #pragma once
-#include "Macros.h"
 #include <string>
+#include "Macros.h"
 
 class Buffer {
-public:
+ public:
   Buffer() = default;
   ~Buffer() = default;
 
@@ -26,6 +26,6 @@ public:
   void Getline();
   void SetBuf(const char *buf);
 
-private:
+ private:
   std::string buf_;
 };

@@ -17,8 +17,7 @@ ThreadPool::ThreadPool(unsigned int size) {
         std::function<void()> task;
         {
           std::unique_lock<std::mutex> lock(queue_mutex_);
-          condition_variable_.wait(
-              lock, [this]() { return stop_ || !tasks_.empty(); });
+          condition_variable_.wait(lock, [this]() { return stop_ || !tasks_.empty(); });
           if (stop_ && tasks_.empty()) {
             return;
           }
