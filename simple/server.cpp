@@ -30,10 +30,9 @@ int main(int argc, char const *argv[])
     while (true)
     {
         std::vector<Channel *> activeChannels = ep->poll();
-        int nfds = activeChannels.size();
-        for (int i = 0; i < nfds; ++i)
+        for (auto chan : activeChannels)
         {
-            int chfd = activeChannels[i]->getFd();
+            int chfd = chan->getFd();
             if (chfd == serv_sock->getFd())
             {                                                                 // 新客户端连接
                 InetAddress *clnt_addr = new InetAddress();                   // 会发生内存泄露！没有delete
@@ -41,13 +40,14 @@ int main(int argc, char const *argv[])
                 printf("new client fd %d! IP: %s Port: %d\n", clnt_sock->getFd(),
                        inet_ntoa(clnt_addr->addr.sin_addr), ntohs(clnt_addr->addr.sin_port));
                 clnt_sock->setnoblocking();
+                // 新增 socket 读事件 channel
                 Channel *clntChannel = new Channel(ep, clnt_sock->getFd());
                 clntChannel->enableReading();
             }
-            else if (activeChannels[i]->getEvents() & EPOLLIN)
+            else if (chan->getEvents() & EPOLLIN)
             {
                 // 可读事件
-                handleReadEvent(activeChannels[i]->getFd());
+                handleReadEvent(chan->getFd());
             }
             else
             {
