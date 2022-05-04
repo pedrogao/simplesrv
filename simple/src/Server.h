@@ -16,7 +16,8 @@ private:
 public:
     Server(EventLoop *);
     ~Server();
+
     void handleReadEvent(int);
-    void newConnection(Socket *serv_sock); // 新建TCP连接
-    void deleteConnection(Socket *sock);   // 断开TCP连接
+    void newConnection(Socket *sock);  // 新建TCP连接
+    void deleteConnection(int sockfd); // 断开TCP连接
 };
