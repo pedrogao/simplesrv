@@ -5,22 +5,15 @@
 #include "Socket.h"
 #include "InetAddress.h"
 #include "Channel.h"
+#include "Acceptor.h"
 
 #define READ_BUFFER 1024
 
-Server::Server(EventLoop *_loop) : loop(_loop)
+Server::Server(EventLoop *_loop) : loop(_loop), acceptor(nullptr)
 {
-    Socket *serv_sock = new Socket();
-    InetAddress *serv_addr = new InetAddress("127.0.0.1", 8888);
-    serv_sock->bind(serv_addr);
-    serv_sock->listen();
-    serv_sock->setnoblocking();
-
-    Channel *servChannel = new Channel(loop, serv_sock->getFd());
-    // 绑定连接回调函数
-    std::function<void()> cb = std::bind(&Server::newConnection, this, serv_sock);
-    servChannel->setCallback(cb);
-    servChannel->enableReading();
+    acceptor = new Acceptor(loop);
+    std::function<void(Socket *)> cb = std::bind(&Server::newConnection, this, std::placeholders::_1);
+    acceptor->setNewConnectionCallback(cb);
 }
 
 Server::~Server()
