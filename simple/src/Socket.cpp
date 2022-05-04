@@ -1,10 +1,11 @@
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-
 #include "Socket.h"
 #include "InetAddress.h"
 #include "util.h"
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <string.h>
 
 Socket::Socket() : fd(-1)
 {
@@ -26,10 +27,12 @@ Socket::~Socket()
     }
 }
 
-void Socket::bind(InetAddress *addr)
+void Socket::bind(InetAddress *_addr)
 {
-    int ret = ::bind(fd, (sockaddr *)&addr->addr, addr->addr_len);
-    errif(ret == -1, "bind socket err");
+    struct sockaddr_in addr = _addr->getAddr();
+    socklen_t addr_len = _addr->getAddr_len();
+    errif(::bind(fd, (sockaddr *)&addr, addr_len) == -1, "socket bind error");
+    _addr->setInetAddr(addr, addr_len);
 }
 
 void Socket::listen()
@@ -43,10 +46,14 @@ void Socket::setnoblocking()
     ::fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
 }
 
-int Socket::accept(InetAddress *addr)
+int Socket::accept(InetAddress *_addr)
 {
-    int clnt_sockfd = ::accept(fd, (sockaddr *)&addr->addr, &addr->addr_len);
-    errif(clnt_sockfd == -1, "accept socket error");
+    struct sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
+    bzero(&addr, sizeof(addr));
+    int clnt_sockfd = ::accept(fd, (sockaddr *)&addr, &addr_len);
+    errif(clnt_sockfd == -1, "socket accept error");
+    _addr->setInetAddr(addr, addr_len);
     return clnt_sockfd;
 }
 

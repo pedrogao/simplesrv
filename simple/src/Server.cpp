@@ -1,13 +1,8 @@
-#include <functional>
-#include <string.h>
-#include <unistd.h>
 #include "Server.h"
 #include "Socket.h"
-#include "InetAddress.h"
-#include "Channel.h"
 #include "Acceptor.h"
-
-#define READ_BUFFER 1024
+#include "Connection.h"
+#include <functional>
 
 Server::Server(EventLoop *_loop) : loop(_loop), acceptor(nullptr)
 {
@@ -18,53 +13,20 @@ Server::Server(EventLoop *_loop) : loop(_loop), acceptor(nullptr)
 
 Server::~Server()
 {
+    delete acceptor;
 }
 
-void Server::handleReadEvent(int sockfd)
+void Server::newConnection(Socket *sock)
 {
-    char buf[READ_BUFFER];
-    while (true)
-    {
-        // 由于使用非阻塞IO，读取客户端buffer，一次读取buf大小数据，直到全部读取完毕
-        bzero(&buf, sizeof(buf));
-        ssize_t bytes_read = read(sockfd, buf, sizeof(buf));
-        if (bytes_read > 0)
-        {
-            printf("message from client fd %d: %s\n", sockfd, buf);
-            write(sockfd, buf, sizeof(buf));
-        }
-        else if (bytes_read == -1 && errno == EINTR)
-        {
-            // 客户端正常中断、继续读取
-            printf("continue reading");
-            continue;
-        }
-        else if (bytes_read == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
-        {
-            // 非阻塞IO，这个条件表示数据全部读取完毕
-            printf("finish reading once, errno: %d\n", errno);
-            break;
-        }
-        else if (bytes_read == 0)
-        {
-            // EOF，客户端断开连接
-            printf("EOF, client fd %d disconnected\n", sockfd);
-            close(sockfd); //关闭socket会自动将文件描述符从epoll树上移除
-            break;
-        }
-    }
+    auto *conn = new Connection(loop, sock);
+    std::function<void(Socket *)> cb = std::bind(&Server::deleteConnection, this, std::placeholders::_1);
+    conn->setDeleteConnectionCallback(cb);
+    connections[sock->getFd()] = conn;
 }
 
-void Server::newConnection(Socket *serv_sock)
+void Server::deleteConnection(Socket *sock)
 {
-    InetAddress *clnt_addr = new InetAddress();                   // 会发生内存泄露！没有delete
-    Socket *clnt_sock = new Socket(serv_sock->accept(clnt_addr)); // 会发生内存泄露！没有delete
-    printf("new client fd %d! IP: %s Port: %d\n", clnt_sock->getFd(),
-           inet_ntoa(clnt_addr->addr.sin_addr), ntohs(clnt_addr->addr.sin_port));
-    clnt_sock->setnoblocking();
-    Channel *clntChannel = new Channel(loop, clnt_sock->getFd());
-    // 绑定读事件回调 handleReadEvent 函数，且 this 和 fd 两个参数
-    std::function<void()> cb = std::bind(&Server::handleReadEvent, this, clnt_sock->getFd());
-    clntChannel->setCallback(cb);
-    clntChannel->enableReading();
+    auto *conn = connections[sock->getFd()];
+    connections.erase(sock->getFd());
+    delete conn;
 }

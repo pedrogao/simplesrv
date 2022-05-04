@@ -13,7 +13,6 @@ public:
     Epoll();
     ~Epoll();
 
-    void addFd(int fd, uint32_t op);
     void updateChannel(Channel *);
     std::vector<Channel*> poll(int timeout = -1);
 };
