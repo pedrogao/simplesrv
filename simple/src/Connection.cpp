@@ -12,12 +12,9 @@ Connection::Connection(EventLoop *_loop, Socket *_sock) : loop(_loop), sock(_soc
     channel = new Channel(loop, sock->getFd());
     channel->enableRead();
     channel->useET();
-
     std::function<void()> cb = std::bind(&Connection::echo, this, sock->getFd()); // 连接成功时回调函数
     channel->setReadCallback(cb);
-    channel->setUseThreadPool(true);
     readBuffer = new Buffer();
-    inBuffer = new std::string();
 }
 
 Connection::~Connection()
@@ -48,9 +45,7 @@ void Connection::echo(int sockfd)
         else if (bytes_read == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK)))
         {
             // 非阻塞IO，这个条件表示数据全部读取完毕
-            printf("finish reading once\n");
             printf("message from client fd %d: %s\n", sockfd, readBuffer->c_str());
-            // errif(write(sockfd, readBuffer->c_str(), readBuffer->size()) == -1, "socket write error");
             send(sockfd);
             readBuffer->clear();
             break;
@@ -65,7 +60,7 @@ void Connection::echo(int sockfd)
         else
         {
             printf("Connection reset by peer\n");
-            deleteConnectionCallback(sockfd); //会有bug，注释后单线程无bug
+            deleteConnectionCallback(sockfd);
             break;
         }
     }

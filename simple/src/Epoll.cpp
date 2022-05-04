@@ -6,7 +6,7 @@
 
 #define MAX_EVENTS 1000
 
-Epoll::Epoll() : epfd(-1), events(nullptr)
+Epoll::Epoll() : epfd(-1)
 {
     epfd = epoll_create1(0);
     errif(epfd == -1, "epoll create error");
@@ -54,4 +54,11 @@ void Epoll::updateChannel(Channel *channel)
     {
         errif(epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ev) == -1, "epoll modify error");
     }
+}
+
+void Epoll::deleteChannel(Channel *channel)
+{
+    int fd = channel->getFd();
+    errif(epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL) == -1, "epoll delete error");
+    channel->setInEpoll(false);
 }

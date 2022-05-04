@@ -1,23 +1,26 @@
 #pragma once
-
 #include <map>
+#include <vector>
 
 class EventLoop;
 class Socket;
 class Acceptor;
 class Connection;
+class ThreadPool;
 class Server
 {
 private:
-    EventLoop *loop;
-    Acceptor *acceptor;                      // TCP连接器
-    std::map<int, Connection *> connections; // 所有TCP连接
+    EventLoop *mainReactor;
+    Acceptor *acceptor;
+    std::map<int, Connection *> connections;
+    std::vector<EventLoop *> subReactors;
+    ThreadPool *thpool;
 
 public:
     Server(EventLoop *);
     ~Server();
 
     void handleReadEvent(int);
-    void newConnection(Socket *sock);  // 新建TCP连接
-    void deleteConnection(int sockfd); // 断开TCP连接
+    void newConnection(Socket *sock);
+    void deleteConnection(int sockfd);
 };
