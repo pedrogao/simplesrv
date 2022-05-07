@@ -3,5 +3,6 @@
 *.o
 *.so
 *.exe
-pine/build
+nebula/build
+fiber/build
 *__pycache__/

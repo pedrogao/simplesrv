@@ -3,11 +3,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ENABLE_LANGUAGE(ASM)
 
-project(Pine
+project(Nebula
         VERSION 0.1
-        DESCRIPTION "pine"
-        LANGUAGES C CXX
+        DESCRIPTION "nebula"
+        LANGUAGES C CXX ASM
         )
 
 
@@ -22,8 +23,8 @@ endif ()
 
 
 # Expected directory structure.
-set(PINE_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
-set(PINE_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@8/bin" "/usr/local/Cellar/llvm/8.0.1/bin")
+set(NEBULA_BUILD_SUPPORT_DIR "${CMAKE_SOURCE_DIR}/build_support")
+set(NEBULA_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bin" "/usr/local/opt/llvm@8/bin" "/usr/local/Cellar/llvm/8.0.1/bin")
 
 ######################################################################################################################
 # DEPENDENCIES
@@ -37,12 +38,12 @@ if (NOT DEFINED CLANG_FORMAT_BIN)
     # attempt to find the binary if user did not specify
     find_program(CLANG_FORMAT_BIN
             NAMES clang-format clang-format-8
-            HINTS ${PINE_CLANG_SEARCH_PATH})
+            HINTS ${NEBULA_CLANG_SEARCH_PATH})
 endif ()
 if ("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
-    message(WARNING "Pine/main couldn't find clang-format.")
+    message(WARNING "Nebula/main couldn't find clang-format.")
 else ()
-    message(STATUS "Pine/main found clang-format at ${CLANG_FORMAT_BIN}")
+    message(STATUS "Nebula/main found clang-format at ${CLANG_FORMAT_BIN}")
 endif ()
 
 # clang-tidy
@@ -50,24 +51,24 @@ if (NOT DEFINED CLANG_TIDY_BIN)
     # attempt to find the binary if user did not specify
     find_program(CLANG_TIDY_BIN
             NAMES clang-tidy clang-fidy-8
-            HINTS ${PINE_CLANG_SEARCH_PATH})
+            HINTS ${NEBULA_CLANG_SEARCH_PATH})
 endif ()
 if ("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")
-    message(WARNING "Pine/main couldn't find clang-tidy.")
+    message(WARNING "Nebula/main couldn't find clang-tidy.")
 else ()
     # Output compile_commands.json
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-    message(STATUS "Pine/main found clang-fidy at ${CLANG_TIDY_BIN}")
+    message(STATUS "Nebula/main found clang-fidy at ${CLANG_TIDY_BIN}")
 endif ()
 
 # cpplint
 find_program(CPPLINT_BIN
         NAMES cpplint cpplint.py
-        HINTS ${PINE_BUILD_SUPPORT_DIR})
+        HINTS ${NEBULA_BUILD_SUPPORT_DIR})
 if ("${CPPLINT_BIN}" STREQUAL "CPPLINT_BIN-NOTFOUND")
-    message(WARNING "Pine/main couldn't find cpplint.")
+    message(WARNING "Nebula/main couldn't find cpplint.")
 else ()
-    message(STATUS "Pine/main found cpplint at ${CPPLINT_BIN}")
+    message(STATUS "Nebula/main found cpplint at ${CPPLINT_BIN}")
 endif ()
 
 ######################################################################################################################
@@ -102,9 +103,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Includes.
-set(PINE_SRC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/include)
-set(PINE_TEST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/test/include)
-include_directories(${PINE_SRC_INCLUDE_DIR} ${PINE_TEST_INCLUDE_DIR})
+set(NEBULA_SRC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/include)
+set(NEBULA_TEST_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/test/include)
+include_directories(${NEBULA_SRC_INCLUDE_DIR} ${NEBULA_TEST_INCLUDE_DIR})
 
 add_subdirectory(src)
 add_subdirectory(test)
@@ -116,27 +117,27 @@ add_subdirectory(test)
 # "make format"
 # "make check-format"
 ##########################################
-string(CONCAT PINE_FORMAT_DIRS
+string(CONCAT NEBULA_FORMAT_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src,"
         "${CMAKE_CURRENT_SOURCE_DIR}/test,"
         )
 
 # runs clang format and updates files in place.
-add_custom_target(format ${PINE_BUILD_SUPPORT_DIR}/run_clang_format.py
+add_custom_target(format ${NEBULA_BUILD_SUPPORT_DIR}/run_clang_format.py
         ${CLANG_FORMAT_BIN}
-        ${PINE_BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
+        ${NEBULA_BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
         --source_dirs
-        ${PINE_FORMAT_DIRS}
+        ${NEBULA_FORMAT_DIRS}
         --fix
         --quiet
         )
     
 # runs clang format and exits with a non-zero exit code if any files need to be reformatted
-add_custom_target(check-format ${PINE_BUILD_SUPPORT_DIR}/run_clang_format.py
+add_custom_target(check-format ${NEBULA_BUILD_SUPPORT_DIR}/run_clang_format.py
         ${CLANG_FORMAT_BIN}
-        ${PINE_BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
+        ${NEBULA_BUILD_SUPPORT_DIR}/clang_format_exclusions.txt
         --source_dirs
-        ${PINE_FORMAT_DIRS}
+        ${NEBULA_FORMAT_DIRS}
         --quiet
         )
 
@@ -144,16 +145,17 @@ add_custom_target(check-format ${PINE_BUILD_SUPPORT_DIR}/run_clang_format.py
 # "make cpplint"
 ##########################################
 
-file(GLOB_RECURSE PINE_LINT_FILES
+file(GLOB_RECURSE NEBULA_LINT_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/test/*.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
         )
 
 # Balancing act: cpplint.py takes a non-trivial time to launch,
 # so process 12 files per invocation, while still ensuring parallelism
-add_custom_target(cpplint echo '${PINE_LINT_FILES}' | xargs -n12 -P8
+add_custom_target(cpplint echo '${NEBULA_LINT_FILES}' | xargs -n12 -P8
         ${CPPLINT_BIN}
         --verbose=2 --quiet
         --linelength=120
@@ -166,8 +168,8 @@ add_custom_target(cpplint echo '${PINE_LINT_FILES}' | xargs -n12 -P8
 # runs clang-tidy and exits with a non-zero exit code if any errors are found.
 # note that clang-tidy automatically looks for a .clang-tidy file in parent directories
 add_custom_target(clang-tidy
-        ${PINE_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
+        ${NEBULA_BUILD_SUPPORT_DIR}/run_clang_tidy.py                     # run LLVM's clang-tidy script
         -clang-tidy-binary ${CLANG_TIDY_BIN}                              # using our clang-tidy binary
         -p ${CMAKE_BINARY_DIR}                                            # using cmake's generated compile commands
         )
-# add_dependencies(check-clang-tidy pine_shared)                    # needs gtest headers, compile_commands.json
+# add_dependencies(check-clang-tidy nebula_shared)                    # needs gtest headers, compile_commands.json

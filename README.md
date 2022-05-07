@@ -4,9 +4,10 @@
 
 ## todo
 
-- [ ] coroutine
-- [ ] mac, kqueue support
+- [x] coroutine
+- [x] mac, kqueue support
 - [ ] details improve
+- [ ] coroutine + server
 
 ## reference
 

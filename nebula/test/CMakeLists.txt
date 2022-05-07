@@ -1,4 +1,4 @@
-file(GLOB PINE_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*.cpp")
+file(GLOB NEBULA_TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/*.cpp")
 ######################################################################################################################
 # DEPENDENCIES
 ######################################################################################################################
@@ -16,23 +16,23 @@ add_custom_target(check-tests COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 ##########################################
 # "make server client ..."
 ##########################################
-foreach (pine_test_source ${PINE_TEST_SOURCES})
+foreach (nebula_test_source ${NEBULA_TEST_SOURCES})
     # Create a human readable name.
-    get_filename_component(pine_test_filename ${pine_test_source} NAME)
-    string(REPLACE ".cpp" "" pine_test_name ${pine_test_filename})
+    get_filename_component(nebula_test_filename ${nebula_test_source} NAME)
+    string(REPLACE ".cpp" "" nebula_test_name ${nebula_test_filename})
 
     # Add the test target separately and as part of "make check-tests".
-    add_executable(${pine_test_name} EXCLUDE_FROM_ALL ${pine_test_source})
-    add_dependencies(build-tests ${pine_test_name})
-    add_dependencies(check-tests ${pine_test_name})
+    add_executable(${nebula_test_name} EXCLUDE_FROM_ALL ${nebula_test_source})
+    add_dependencies(build-tests ${nebula_test_name})
+    add_dependencies(check-tests ${nebula_test_name})
 
-    target_link_libraries(${pine_test_name} pine_shared)
+    target_link_libraries(${nebula_test_name} nebula_shared)
 
     # Set test target properties and dependencies.
-    set_target_properties(${pine_test_name}
+    set_target_properties(${nebula_test_name}
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-        COMMAND ${pine_test_name}
+        COMMAND ${nebula_test_name}
     )
 
-endforeach(pine_test_source ${PINE_TEST_SOURCES})
+endforeach(nebula_test_source ${NEBULA_TEST_SOURCES})
