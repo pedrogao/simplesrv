@@ -9,14 +9,11 @@
  *
  */
 #include "Connection.h"
-
 #include <unistd.h>
-
 #include <cassert>
 #include <cstring>
 #include <iostream>
 #include <utility>
-
 #include "Buffer.h"
 #include "Channel.h"
 #include "Socket.h"

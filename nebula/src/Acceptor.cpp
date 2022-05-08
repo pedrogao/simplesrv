@@ -9,11 +9,8 @@
  *
  */
 #include "Acceptor.h"
-
 #include <utility>
-
 #include "Channel.h"
-
 #include "Socket.h"
 
 Acceptor::Acceptor(EventLoop *loop) : loop_(loop), sock_(nullptr), channel_(nullptr) {

@@ -31,7 +31,7 @@ set(NEBULA_CLANG_SEARCH_PATH "/usr/local/bin" "/usr/bin" "/usr/local/opt/llvm/bi
 ######################################################################################################################
 
 # CTest
-# enable_testing()
+enable_testing()
 
 # clang-format
 if (NOT DEFINED CLANG_FORMAT_BIN)

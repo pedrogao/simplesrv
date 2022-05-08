@@ -4,5 +4,5 @@
 *.so
 *.exe
 nebula/build
-fiber/build
+ef/build
 *__pycache__/

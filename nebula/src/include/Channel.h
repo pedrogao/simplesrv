@@ -9,9 +9,8 @@
  *
  */
 #pragma once
-#include "Macros.h"
-
 #include <functional>
+#include "Macros.h"
 
 class Socket;
 class EventLoop;

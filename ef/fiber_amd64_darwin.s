@@ -78,13 +78,15 @@ _ef_fiber_exit:
     mov FIBER_STACK_PTR_OFFSET(%rcx), %rsp
     jmp _ef_fiber_restore
 
-_ef_fiber_internal_init:
-    mov $FIBER_STATUS_INITED, %rax
-    mov %rax, FIBER_STATUS_OFFSET(%rdi)
+# https://stackoverflow.com/questions/1658294/whats-the-purpose-of-the-lea-instruction
+# https://en.wikipedia.org/wiki/X86_calling_conventions
+_ef_fiber_internal_init:                  # arg0: rdi, arg1: rsi, arg2: rdx, arg3: rcx
+    mov $FIBER_STATUS_INITED, %rax        # rax = 1
+    mov %rax, FIBER_STATUS_OFFSET(%rdi)   # fiber.status = 1
     mov %rdi, %rcx
     mov FIBER_STACK_UPPER_OFFSET(%rdi), %rdi
     mov %rcx, -8(%rdi)
-    lea _ef_fiber_exit(%rip), %rax
+    lea _ef_fiber_exit(%rip), %rax        # rax = _ef_fiber_exit
     mov %rax, -16(%rdi)
     mov %rsi, -24(%rdi)
     xor %rax, %rax
@@ -102,6 +104,6 @@ _ef_fiber_internal_init:
     mov %rax, -120(%rdi)
     mov %rax, -128(%rdi)
     mov %rdi, %rax
-    sub $128, %rax
+    sub $128, %rax                       # return %rax
     ret
 

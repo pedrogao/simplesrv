@@ -9,11 +9,8 @@
  *
  */
 #include "Server.h"
-
 #include <unistd.h>
-
 #include <functional>
-
 #include "Acceptor.h"
 #include "Connection.h"
 #include "EventLoop.h"

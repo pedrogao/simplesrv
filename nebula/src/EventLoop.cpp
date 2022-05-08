@@ -9,9 +9,7 @@
  *
  */
 #include "EventLoop.h"
-
 #include <vector>
-
 #include "Channel.h"
 #include "Poller.h"
 

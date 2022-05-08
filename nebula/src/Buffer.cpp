@@ -9,7 +9,6 @@
  *
  */
 #include "Buffer.h"
-
 #include <cstring>
 #include <iostream>
 

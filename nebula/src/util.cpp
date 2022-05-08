@@ -9,7 +9,6 @@
  *
  */
 #include "util.h"
-
 #include <cstdio>
 #include <cstdlib>
 

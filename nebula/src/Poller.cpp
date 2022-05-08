@@ -9,14 +9,12 @@
  *
  */
 #include "Poller.h"
-
 #include <unistd.h>
-
 #include <cstring>
-
 #include "Channel.h"
 #include "Socket.h"
 #include "util.h"
+
 #define MAX_EVENTS 1000
 
 #ifdef OS_LINUX
