@@ -9,6 +9,8 @@ set (SOURCE
     framework.c
 )
 
+include_directories(include)
+
 # OS
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "Platform: macOS")
