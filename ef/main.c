@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
 
     struct sigaction sa = {0};
     sa.sa_handler = signal_handler;
-    sigaction(SIGHUP, &sa, NULL);
-    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGHUP, &sa, NULL); // 中断
+    sigaction(SIGINT, &sa, NULL); // 杀死
     // 监听 8080 端口
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)

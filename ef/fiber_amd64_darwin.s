@@ -35,7 +35,7 @@
 .text
 
 _ef_fiber_internal_swap:
-    mov %rdx, %rax
+    mov %rdx, %rax # 将第 3 个参数存储到 rax 作为返回值
     push %rbx
     push %rbp
     push %rsi
