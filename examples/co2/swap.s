@@ -1,32 +1,32 @@
 # 全局申明函数
 .global _co_swap
-.global _co_restore
 
 # 代码段
 .text
 
 # callee-saved：rbx, rbp, rdi, rsi, rsp, r12, r13, r14, r15
 # 将寄存器值存储到栈中
+# 参数序号：rdi, rsi，rdx, rcx
 _co_swap:
-    mov %rdi, %rax # 将第 1 个参数存储到 rax 作为返回值
-    push %rbx
-    push %rbp
-    push %rdi
-    push %rsi
-    push %rsp
-    push %r12
-    push %r13
-    push %r14
-    push %r15
-    # 镜像操作
-    pop %r15
-    pop %r14
-    pop %r13
-    pop %r12
-    pop %rsp
-    pop %rsi
-    pop %rdi
-    pop %rbp
-    pop %rbx
+    # 第一个参数 rdi 存储上一个 ctx
+    mov %rbx, 0x00(%rdi)
+    mov %rbp, 0x08(%rdi)
+    mov %rdi, 0x10(%rdi)
+    mov %rsi, 0x18(%rdi)
+    mov %rsp, 0x20(%rdi)
+    mov %r12, 0x28(%rdi)
+    mov %r13, 0x30(%rdi)
+    mov %r14, 0x38(%rdi)
+    mov %r15, 0x40(%rdi)
+    # 第二个参数 rsi 存储下一个 ctx
+    mov 0x00(%rsi), %rbx
+    mov 0x08(%rsi), %rbp
+    mov 0x10(%rsi), %rdi
+    mov 0x18(%rsi), %rsi
+    mov 0x20(%rsi), %rsp
+    mov 0x28(%rsi), %r12
+    mov 0x30(%rsi), %r13
+    mov 0x38(%rsi), %r14
+    mov 0x40(%rsi), %r15
     # 返回
     ret

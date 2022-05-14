@@ -1,6 +1,5 @@
 # 全局申明函数
 .global _co_swap
-.global _co_restore
 
 # 代码段
 .text
