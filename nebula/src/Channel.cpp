@@ -45,9 +45,11 @@ void Channel::UseET() {
   listen_events_ |= ET;
   loop_->UpdateChannel(this);
 }
+
 Socket *Channel::GetSocket() { return socket_; }
 
 int Channel::GetListenEvents() { return listen_events_; }
+
 int Channel::GetReadyEvents() { return ready_events_; }
 
 bool Channel::GetExist() { return exist_; }
@@ -67,4 +69,5 @@ void Channel::SetReadyEvents(int ev) {
 }
 
 void Channel::SetReadCallback(std::function<void()> const &callback) { read_callback_ = callback; }
+
 void Channel::SetWriteCallback(std::function<void()> const &callback) { write_callback_ = callback; }
