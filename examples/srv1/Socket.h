@@ -40,8 +40,17 @@ public:
     explicit Socket(int fd);
     ~Socket();
 
+    void Bind(InetAddress *addr);
+    void Listen();
+    void SetNonBlocking();
+    bool IsNonBlocking();
+    int Accept(InetAddress *addr);
+    void Connect(InetAddress *addr);
+    void Connect(const char *ip, uint16_t port);
+    int GetFd();
+
 private:
-    int fd{-1};
+    int fd_{-1};
 };
 
 #endif
