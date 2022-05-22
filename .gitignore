@@ -5,4 +5,5 @@
 *.exe
 nebula/build
 ef/build
+examples/co4/build
 *__pycache__/

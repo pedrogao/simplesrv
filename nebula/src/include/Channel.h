@@ -43,8 +43,8 @@ class Channel {
  private:
   EventLoop *loop_;
   Socket *socket_;
-  int listen_events_{0};
-  int ready_events_{0};
+  int listen_events_{0};  // 监听事件
+  int ready_events_{0};   // 就绪事件
   bool exist_{false};
   std::function<void()> read_callback_;
   std::function<void()> write_callback_;

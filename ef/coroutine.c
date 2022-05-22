@@ -23,6 +23,7 @@
 
 int ef_coroutine_pool_init(ef_coroutine_pool_t *pool, size_t stack_size, int limit_min, int limit_max)
 {
+    // 初始化调度器
     if (ef_fiber_init_sched(&pool->fiber_sched, 1) < 0)
     {
         return -1;
@@ -30,8 +31,8 @@ int ef_coroutine_pool_init(ef_coroutine_pool_t *pool, size_t stack_size, int lim
     pool->stack_size = stack_size;
     pool->limit_min = limit_min;
     pool->limit_max = limit_max;
-    ef_list_init(&pool->full_list);
-    ef_list_init(&pool->free_list);
+    ef_list_init(&pool->full_list); // 忙碌列表
+    ef_list_init(&pool->free_list); // 空闲列表
     pool->full_count = 0;
     pool->free_count = 0;
     pool->run_count = 0;

@@ -125,17 +125,18 @@ int ef_init(ef_runtime_t *rt, size_t stack_size, int limit_min, int limit_max, i
      */
     ef_runtime = rt;
 
-    rt->p = p;
-    rt->stopping = 0;
-    rt->shrink_millisecs = shrink_millisecs;
+    rt->p = p;                               // epoll
+    rt->stopping = 0;                        // stop or not?
+    rt->shrink_millisecs = shrink_millisecs; // 参数
     rt->count_per_shrink = count_per_shrink;
 
+    // 新建协程池
     if (ef_coroutine_pool_init(&rt->co_pool, stack_size, limit_min, limit_max) < 0)
     {
         return -1;
     }
-    ef_list_init(&rt->listen_list);
-    ef_list_init(&rt->free_fd_list);
+    ef_list_init(&rt->listen_list);  // 监听列表
+    ef_list_init(&rt->free_fd_list); // 空闲fd列表
 
     return 0;
 }
