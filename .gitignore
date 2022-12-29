@@ -7,3 +7,5 @@ nebula/build
 ef/build
 examples/co4/build
 *__pycache__/
+*.dylib
+tiga/build
